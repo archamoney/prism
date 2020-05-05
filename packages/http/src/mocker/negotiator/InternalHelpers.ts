@@ -43,15 +43,9 @@ export function findBestHttpContentByMediaType(
   response: PickRequired<IHttpOperationResponse, 'contents'>,
   mediaType: string[]
 ): Option<IMediaTypeContent> {
-    const req = {
-        headers: {
-            ['content-type']: mediaType.join(',')
-        }
-    };
-
     return pipe(
       response.contents,
-      findFirst(content => typeIs.is(req, [content.mediaType]))
+      findFirst(content => typeIs.is(mediaType.join(','), [content.mediaType]) !== false)
     );
 }
 
