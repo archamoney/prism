@@ -1,6 +1,7 @@
 import { IHttpContent, IHttpOperationResponse, IMediaTypeContent } from '@stoplight/types';
 // @ts-ignore
 import * as accepts from 'accepts';
+import * as typeIs from 'type-is';
 import { filter, findFirst, head, sort } from 'fp-ts/lib/Array';
 import { NonEmptyArray } from 'fp-ts/lib/NonEmptyArray';
 import { alt, map, Option } from 'fp-ts/lib/Option';
@@ -22,20 +23,36 @@ export function hasContents(v: IHttpOperationResponse): v is PickRequired<IHttpO
   return !!v.contents;
 }
 
+//export function findBestHttpContentByMediaType(
+//  response: PickRequired<IHttpOperationResponse, 'contents'>,
+//  mediaType: string[]
+//): Option<IMediaTypeContent> {
+//  const bestType = accepts({
+//    headers: {
+//      accept: mediaType.join(','),
+//    },
+//  }).type(response.contents.map(c => c.mediaType));
+//
+//  return pipe(
+//    response.contents,
+//    findFirst(content => content.mediaType === bestType)
+//  );
+//}
+
 export function findBestHttpContentByMediaType(
   response: PickRequired<IHttpOperationResponse, 'contents'>,
   mediaType: string[]
 ): Option<IMediaTypeContent> {
-  const bestType = accepts({
-    headers: {
-      accept: mediaType.join(','),
-    },
-  }).type(response.contents.map(c => c.mediaType));
+    const req = {
+        headers: {
+            ['content-type']: mediaType.join(',')
+        }
+    };
 
-  return pipe(
-    response.contents,
-    findFirst(content => content.mediaType === bestType)
-  );
+    return pipe(
+      response.contents,
+      findFirst(content => typeIs.is(req, [content.mediaType]))
+    );
 }
 
 export function findDefaultContentType(
