@@ -29,7 +29,7 @@ const outputNoContentFoundMessage = (contentTypes: string[]) => `Unable to find 
 const findEmptyResponse = (response: IHttpOperationResponse, headers: IHttpHeaderParam[], mediaTypes: string[]) =>
   pipe(
     mediaTypes,
-    findIndex(ct => ct.includes('*/*')),
+    findIndex(ct => !ct.includes('*/*')),
     O.map(() => ({ code: response.code, headers }))
   );
 
